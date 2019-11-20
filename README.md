@@ -42,3 +42,10 @@ A ready made rig is provided in Volemort_rigged.mb
 
 # Resources
 * [3D Model](http://tf3dm.com/3d-model/lord-voldemort-13066.html)  
+
+
+##### 修改为自动识别关键点（2019/11/20）
+
+* 待完成工作
+	- [x] 程序debug
+	- [ ] 计算关键点移动
