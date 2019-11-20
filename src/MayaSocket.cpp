@@ -4,12 +4,15 @@
 
 #include "opencv2/core/core.hpp"
 
+#include <iostream>
+using namespace std;
 
 void MayaSocket::connect() {
     try {
-        internal_socket.connect("localhost", 5055);
+        internal_socket.connect("10.1.120.133", 8088);
         connected = true;
     } catch (int e) {
+        cout << "socket error...." << e <<endl;
         connected = false;
     }
 }

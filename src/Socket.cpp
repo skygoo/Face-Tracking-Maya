@@ -16,6 +16,9 @@
 */
 
 #include "Socket.h"
+#include <iostream>
+
+using namespace std;
 
 #ifdef WIN32
 	typedef int socklen_t;
@@ -27,16 +30,25 @@ Socket::Socket(int type, int domain, int protocol)
 		int n= WSAStartup(MAKEWORD(2, 0), &wsa_data);
 		if(n == -1) error(n);
 	#endif
-	
+    
 	sockfd = socket(domain, type, protocol);
-	if(sockfd <= 0) error(sockfd);
+    if(sockfd <= 0) {
+        error(sockfd);
+        cout << "y1--------" << endl;
+    }
 
+    cout << "y2--------" << endl;
+    
 	char yes = 1;
 	setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
-	
+    
+	cout << "y3--------" << endl;
+    
 	my_addr.sin_family = domain;
 	buffer_size = 0;
 	buffer = NULL;
+    
+    cout << "y4--------" << endl;
 }
 
 Socket::Socket(int new_fd, bool flag)
@@ -58,10 +70,14 @@ void Socket::bind(int port)
 {
     my_addr.sin_port = htons(port);
     my_addr.sin_addr.s_addr = INADDR_ANY;
+//    my_addr.sin_addr.s_addr = inet_addr("10.1.120.196"); //具体的IP地址
     memset(my_addr.sin_zero, '\0', sizeof my_addr.sin_zero);
 
     int n = ::bind(sockfd, (struct sockaddr*)&my_addr, sizeof(my_addr));
-    if(n == -1) error(n);
+    if(n == -1) {
+        cout << "bind--------" << endl;
+        error(n);
+    }
 }
 
 void Socket::listen(int backlog)
@@ -78,7 +94,10 @@ Socket Socket::accept()
 	socklen_t size = sizeof(their_addr);
 
 	new_fd = ::accept(sockfd, (struct sockaddr*)&their_addr, &size);
-	if(new_fd <= 0) error(new_fd);
+    if(new_fd <= 0) {
+        cout << "accept--------" << endl;
+        error(new_fd);
+    }
 
     return Socket(new_fd, true);
 }
@@ -88,7 +107,10 @@ struct in_addr* Socket::getHostByName(const char* server)
 	struct hostent *h;
 	h = gethostbyname(server);
 	
-	if(h == 0) error(-1);
+    if(h == 0) {
+        cout << "getHostByName--------" << endl;
+        error(-1);
+    }
 	return (struct in_addr*)h->h_addr;	
 }
 
@@ -98,7 +120,10 @@ const char* Socket::getPeerName()
 	socklen_t size = sizeof(peer);
 	
 	int n = getpeername(sockfd, (struct sockaddr*)&peer, &size);
-	if(n == -1) throw(n);
+    if(n == -1) {
+        cout << "getPeerName--------" << endl;
+        throw(n);
+    }
 	
 	return inet_ntoa(peer.sin_addr);
 }
@@ -108,19 +133,30 @@ const char* Socket::getHostName()
 	char name[256];
 	
 	int n = gethostname(name, sizeof(name));
-	if(n == -1) throw(n);
+    if(n == -1) {
+        cout << "getHostName--------" << endl;
+        throw(n);
+    }
 	
 	return inet_ntoa(*getHostByName(name));
 }
 
 void Socket::connect(const char* server, int port)
 {
+    cout << "y5--------" << endl;
     my_addr.sin_port = htons(port);
     my_addr.sin_addr = *getHostByName(server);
+//    my_addr.sin_addr.s_addr = inet_addr(server);
+    
     memset(my_addr.sin_zero, '\0', sizeof(my_addr.sin_zero));
     
     int n = ::connect(sockfd, (struct sockaddr *)&my_addr, sizeof(my_addr));
-    if(n == -1) error(n);
+    if(n == -1) {
+     cout << "connect  "<< server <<"--------" << endl;
+     error(n);
+    }
+    
+    cout << "y6--------" << endl;
 }
 
 int Socket::send(const std::string& msg)
