@@ -25,41 +25,6 @@ FaceTracker::FaceTracker() {
     facemark->loadModel("/Users/sky/CProject/Demo/Res/lbfmodel.yaml");
     
     savedFacePosition = Rect();
-    
-    //detect markers
-//#if ROUND_STICKER_MARKER
-//    SimpleBlobDetector::Params params;
-//    params.filterByColor = true; // Blob color, 0 black, 255 white
-//    params.blobColor = 255;
-//    params.filterByArea = true; // How many pixels min/max a blob can have
-//    params.minArea = 100;
-//    params.maxArea = 1000;
-//    params.filterByCircularity = true; // Circle has circularity of 1, square has 0.785
-//    params.minCircularity = 0.4;
-//    params.filterByConvexity = false; // How convex/concave blobs can be
-//    params.minConvexity = 0.6;
-//    params.filterByInertia = false;
-//    params.minInertiaRatio = 0.1;
-//    H = 176 / 2.0; S = 57 * 2.55; V = 75 * 2.55; //teal markers
-//    thresholdH = 15; thresholdS = 50; thresholdV = 150;
-//#else
-//    SimpleBlobDetector::Params params;
-//    params.filterByColor = false; // Blob color, 0 black, 255 white
-//    params.blobColor = 0;
-//    params.filterByArea = true; // How many pixels min/max a blob can have
-//    params.minArea = 150;
-//    params.maxArea = 2000;
-//    params.filterByCircularity = false; // Circle has circularity of 1, square has 0.785
-//    params.minCircularity = 0.6;
-//    params.filterByConvexity = false; // How convex/concave blobs can be
-//    params.minConvexity = 0.6;
-//    params.filterByInertia = false;
-//    params.minInertiaRatio = 0.1;
-//    H = 191 / 2.0; S = 84 * 2.55; V = 68 * 2.55; //glossy paper
-//    thresholdH = 15; thresholdS = 50; thresholdV = 250;
-//#endif
-
-//    marker_detector = SimpleBlobDetector::create(params);
 
     face_rest_captured = false;
 }
@@ -99,28 +64,10 @@ bool FaceTracker::detectAndShow(Mat& frame) {
     }
     
     bool success = facemark->fit(frame,faces,landmarks);
-
-//    rectangle(frame, Point2f(savedFacePosition.x, savedFacePosition.y), Size(savedFacePosition.x + savedFacePosition.width, savedFacePosition.y + savedFacePosition.height), Scalar( 255, 100, 255 ));
-//
-//    // Cut out face part of image
-//    Rect temp = savedFacePosition;
-//    temp.height = min(temp.height + 50, frame.rows - temp.y);
-//    Mat faceROI = frame(temp).clone();
-//    cvtColor( faceROI, faceROI, COLOR_BGR2HSV );
-//
-//    // Detect paper of specific color
-//
-//    inRange(faceROI,
-//            Scalar(H - thresholdH, S - thresholdS, V - thresholdV),
-//            Scalar(H + thresholdH, S + thresholdS, V + thresholdV),
-//            faceROI);
     
     // Uniform size
     float det_width = 300;
     float det_height = 500;
-//    resize(faceROI, faceROI, Size(det_width,det_height), INTER_CUBIC);
-//    blur(faceROI, faceROI, Size(10,10));
-//    threshold(faceROI,faceROI,50,255,THRESH_BINARY);
 
 
     // ##############
@@ -138,7 +85,7 @@ bool FaceTracker::detectAndShow(Mat& frame) {
         keypoints.push_back(KeyPoint(landmarks[0].at(41), 1.f));
         keypoints.push_back(KeyPoint(landmarks[0].at(46), 1.f));
         keypoints.push_back(KeyPoint(landmarks[0].at(31), 1.f));
-        keypoints.push_back(KeyPoint(landmarks[0].at(36), 1.f));
+        keypoints.push_back(KeyPoint(landmarks[0].at(35), 1.f));
         keypoints.push_back(KeyPoint(landmarks[0].at(48), 1.f));
         keypoints.push_back(KeyPoint(landmarks[0].at(51), 1.f));
         keypoints.push_back(KeyPoint(landmarks[0].at(54), 1.f));
@@ -148,80 +95,13 @@ bool FaceTracker::detectAndShow(Mat& frame) {
     }
     
     
-    
-//    marker_detector->detect(faceROI, keypoints);
-
-    // Map in frame instead of faceROI
-//    float scale_w = temp.width/det_width;
-//    float scale_h = temp.height/det_height;
-//    for (int i = 0; i < keypoints.size(); i++) {
-//
-//        keypoints.at(i).pt.x *= scale_w;
-//        keypoints.at(i).pt.x += savedFacePosition.x;
-//        keypoints.at(i).pt.y *= scale_h;
-//        keypoints.at(i).pt.y += savedFacePosition.y;
-//
-//        /*
-//        Point2f pt = keypoints.at(i).pt;
-//        pt.x *= scale_w;
-//        pt.x += savedFacePosition.x;
-//        pt.y *= scale_h;
-//        pt.y += savedFacePosition.y;
-//        float size_w = keypoints.at(i).size * scale_w/2;
-//        float size_h = keypoints.at(i).size * scale_h/2;
-//        ellipse(frame,pt,Size(size_h,size_w),0,0,360,Scalar(0,0,255));
-//        */
-//
-//    }
-    
-    
-    // If keypoints has the wrong size, try to correct
-//    cout << MARKER_COUNT <<"==="<< keypoints.size() << endl;
-//    if (keypoints.size() != MARKER_COUNT) {
-//        //return false; //TEMPORARY FIX
-//
-//        // There are no saved keypoints either
-//        if (savedKeypoints.empty()) {
-//            return false;
-//        }
-//
-//        std::vector<KeyPoint> tempKeypoints;
-//
-//        // Loop through saved keypoints
-//        for (int i = 0; i < MARKER_COUNT; i++) {
-//            KeyPoint tempPoint = savedKeypoints[i];
-//            float closestDist = 99999.0;
-//
-//            // Loop through all found keypoints
-//            for (int j = 0; j < keypoints.size(); j++) {
-//                float dist = distance(tempPoint.pt, keypoints[j].pt);
-//
-//                // If we found a better candidate, change tempPoint to this
-//                if (dist < MAX_DIST && dist < closestDist) {
-//                    closestDist = dist;
-//                    tempPoint = keypoints[j];
-//                }
-//            }
-//
-//            tempKeypoints.push_back(tempPoint);
-//        }
-//
-//        // Clear keypoints
-//        // Fill keypoints with values from tempKeypoints
-//        keypoints.clear();
-//        for (int i = 0; i < MARKER_COUNT; i++) {
-//            keypoints.push_back(tempKeypoints[i]);
-//        }
-//    }
-    
-    
     // Sort keypoints to correct order
-    std::sort(keypoints.begin(), keypoints.end(), keySortSmallY);
-    std::sort(keypoints.begin()+1, keypoints.begin()+5, keySortSmallX);
-    std::sort(keypoints.begin()+5, keypoints.begin()+7, keySortSmallX);
-    std::sort(keypoints.begin()+7, keypoints.begin()+10, keySortSmallX);
-    std::sort(keypoints.begin()+10, keypoints.end(), keySortSmallX);
-    std::sort(keypoints.begin()+11, keypoints.begin()+13, keySortSmallY);
+//    std::sort(keypoints.begin(), keypoints.end(), keySortSmallY);
+//    std::sort(keypoints.begin()+1, keypoints.begin()+5, keySortSmallX);
+//    std::sort(keypoints.begin()+5, keypoints.begin()+7, keySortSmallX);
+//    std::sort(keypoints.begin()+7, keypoints.begin()+10, keySortSmallX);
+//    std::sort(keypoints.begin()+10, keypoints.end(), keySortSmallX);
+//    std::sort(keypoints.begin()+11, keypoints.begin()+13, keySortSmallY);
     
     // Weight keypoints with saved ones
     if (!savedKeypoints.empty()) {
@@ -235,12 +115,10 @@ bool FaceTracker::detectAndShow(Mat& frame) {
     savedKeypoints.clear();
     for (int i = 0; i < MARKER_COUNT; i++) {
         savedKeypoints.push_back(keypoints[i]);
+        circle(frame, keypoints[i].pt, 2, Scalar(255, 0, 255));
     }
     
-    // Display keypoints in frame
-//    drawKeypoints( frame, keypoints, frame, Scalar(0,0,255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS );
-    drawFacemarks(frame, landmarks[0], Scalar(0, 0, 255));
-    imshow("Filtered", frame);
+//    drawFacemarks(frame, landmarks[0]);
     
     //which keypoint is which?
     int keyIndex = 0;
@@ -296,8 +174,8 @@ bool FaceTracker::detectAndShow(Mat& frame) {
     float curr_dist = distance(face_data.markers[FOREHEAD], face_data.markers[NOSE]);
     Point2f fn_v_c = (face_data.markers[FOREHEAD] - face_data.markers[NOSE])/curr_dist;
 
-    line(frame, face_data.markers[FOREHEAD], face_data.markers[NOSE], Scalar(255,255,255));
-    line(frame, face_rest_data.markers[FOREHEAD] + face_data.markers[FOREHEAD], face_rest_data.markers[NOSE] + face_data.markers[FOREHEAD], Scalar(0,255,255));
+//    line(frame, face_data.markers[FOREHEAD], face_data.markers[NOSE], Scalar(255,255,255));
+//    line(frame, face_rest_data.markers[FOREHEAD] + face_data.markers[FOREHEAD], face_rest_data.markers[NOSE] + face_data.markers[FOREHEAD], Scalar(0,255,255));
 
     //face tilt
     float cosTheta = fn_v_r.x*fn_v_c.x + fn_v_r.y*fn_v_c.y;
@@ -319,9 +197,9 @@ bool FaceTracker::detectAndShow(Mat& frame) {
         Point2f forehead = face_data.markers[FOREHEAD];
         Point2f pt1 = rest + forehead;
         Point2f pt2 = curr + forehead;
-        line(frame, pt1, pt2, Scalar(0,255,0));
-        circle(frame, pt1, 2, Scalar(255,0,0));
-        circle(frame, pt2, 2, Scalar(255,255,0));
+//        line(frame, pt1, pt2, Scalar(0,255,0));
+//        circle(frame, pt1, 2, Scalar(255,0,0));
+//        circle(frame, pt2, 2, Scalar(255,255,0));
     }
 
     return true;
